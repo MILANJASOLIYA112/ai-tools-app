@@ -229,7 +229,13 @@
     </style>
 </head>
 <body>
-
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js');
+    });
+  }
+</script>
     <header>
         <div class="header-title">⚡ AI Creative & Medical Hub</div>
         <div class="header-sub">Free Tools, Cost Plans & Masterclass Videos</div>
