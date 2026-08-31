@@ -1,0 +1,44 @@
+{
+  "id": "com.nyalstudio.aitoolshub",
+  "name": "AI Tools & Masterclasses Hub",
+  "short_name": "AI Hub",
+  "description": "Comprehensive directory of 59+ free & low-cost AI tools across Healthcare, Web Development, 2D/3D Animation, Video, Design, and University Lectures.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1B365D",
+  "theme_color": "#1B365D",
+  "lang": "en",
+  "categories": ["education", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot-mobile.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "AI Tools Mobile Directory"
+    },
+    {
+      "src": "screenshot-desktop.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "AI Tools Hub Dashboard"
+    }
+  ]
+}
