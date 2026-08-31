@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1B365D">
+    <title>AI Directory & Masterclasses</title>
+    <link rel="manifest" href="data:application/manifest+json,{\"name\":\"AI Tools Hub\",\"short_name\":\"AIHub\",\"start_url\":\".\",\"display\":\"standalone\",\"background_color\":\"#1B365D\",\"theme_color\":\"#1B365D\"}">
+    <style>
+        :root {
+            --primary: #1B365D;
+            --primary-light: #335C81;
+            --accent: #2563EB;
+            --bg: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+            --badge-green-bg: #D1FAE5;
+            --badge-green-text: #065F46;
+            --badge-blue-bg: #DBEAFE;
+            --badge-blue-text: #1E40AF;
+            --badge-purple-bg: #EDE9FE;
+            --badge-purple-text: #5B21B6;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            padding-bottom: 70px;
+        }
+        /* App Header */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background-color: var(--primary);
+            color: white;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .header-title { font-size: 1.25rem; font-weight: 700; }
+        .header-sub { font-size: 0.8rem; opacity: 0.85; margin-top: 2px; }
+        
+        /* Search Box */
+        .search-container {
+            margin-top: 12px;
+            position: relative;
+        }
+        .search-input {
+            width: 100%;
+            padding: 10px 14px 10px 38px;
+            border-radius: 10px;
+            border: none;
+            background-color: #FFFFFF;
+            font-size: 0.95rem;
+            color: #1E293B;
+            outline: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+        
+        /* Category Filter Chips */
+        .category-scroll {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 12px 16px;
+            background-color: #FFFFFF;
+            border-bottom: 1px solid var(--border);
+            scrollbar-width: none;
+        }
+        .category-scroll::-webkit-scrollbar { display: none; }
+        .chip {
+            flex-shrink: 0;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            background-color: #F1F5F9;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .chip.active {
+            background-color: var(--primary);
+            color: #FFFFFF;
+            border-color: var(--primary);
+        }
+        
+        /* Main Container */
+        main { padding: 12px 16px; }
+        .section-counter {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        
+        /* Card Styles */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .card-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .card-sub {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        .badge {
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .badge-free { background-color: var(--badge-green-bg); color: var(--badge-green-text); }
+        .badge-daily { background-color: var(--badge-blue-bg); color: var(--badge-blue-text); }
+        .badge-freemium { background-color: var(--badge-purple-bg); color: var(--badge-purple-text); }
+        .badge-paid { background-color: #FEF3C7; color: #92400E; }
+        
+        .card-desc {
+            font-size: 0.86rem;
+            color: #334155;
+            line-height: 1.35;
+        }
+        .card-specs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            font-size: 0.75rem;
+            color: #64748B;
+            background: #F8FAFC;
+            padding: 6px 10px;
+            border-radius: 6px;
+        }
+        .spec-item { font-weight: 600; }
+        
+        /* Action Buttons */
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+        }
+        .btn {
+            flex: 1;
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: opacity 0.2s;
+        }
+        .btn:active { opacity: 0.8; }
+        .btn-primary {
+            background-color: var(--accent);
+            color: #FFFFFF;
+        }
+        .btn-secondary {
+            background-color: #F1F5F9;
+            color: #6D28D9;
+            border: 1px solid #DDD6FE;
+        }
+        
+        /* Bottom Navigation Bar */
+        nav.bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background-color: #FFFFFF;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 50;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-decoration: none;
+            width: 50%;
+            height: 100%;
+            cursor: pointer;
+        }
+        .nav-item.active {
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-title">⚡ AI Creative & Medical Hub</div>
+        <div class="header-sub">Free Tools, Cost Plans & Masterclass Videos</div>
+        <div class="search-container">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" class="search-input" placeholder="Search tool, feature, healthcare, 3D...">
+        </div>
+    </header>
+
+    <div class="category-scroll" id="categoryChips">
+        <button class="chip active" onclick="filterCategory('ALL')">All Tools</button>
+        <button class="chip" onclick="filterCategory('Health Care')">🏥 Health Care</button>
+        <button class="chip" onclick="filterCategory('Web/App Dev')">💻 Web/App Dev</button>
+        <button class="chip" onclick="filterCategory('Graphics')">🎨 Graphics</button>
+        <button class="chip" onclick="filterCategory('Photo')">📷 Photo AI</button>
+        <button class="chip" onclick="filterCategory('2D/3D Animation')">🎬 2D/3D Anim</button>
+        <button class="chip" onclick="filterCategory('Script Writing')">✍️ Script Writing</button>
+        <button class="chip" onclick="filterCategory('Video Editing')">✂️ Video Editing</button>
+        <button class="chip" onclick="filterCategory('Long/Short Video')">🎥 Short/Long Vid</button>
+    </div>
+
+    <main>
+        <div class="section-counter" id="itemCount">Showing all tools...</div>
+        <div id="cardsList"></div>
+    </main>
+
+    <nav class="bottom-nav">
+        <div class="nav-item active" id="tabTools" onclick="switchMainTab('tools')">
+            <span>🛠️ Tools Hub (59)</span>
+        </div>
+        <div class="nav-item" id="tabLectures" onclick="switchMainTab('lectures')">
+            <span>🎓 Lectures & Courses (22)</span>
+        </div>
+    </nav>
+
+    <script>
+        const db = {"categories": [], "tools": [{"id": 1, "name": "Nuance DAX Copilot", "sector": "Health Care", "sub_category": "Ambient Clinical Documentation", "pricing": "Paid / Enterprise", "free_tier": "Free clinical trial demo available via MS Health", "cost_plan": "Custom Hospital / Physician SaaS", "features": "Ambient AI medical scribe that automatically creates structured SOAP notes from clinician-patient conversations", "deployment": "Cloud (Azure)", "difficulty": "Intermediate", "home_url": "https://www.nuance.com/healthcare/ambient-clinical-intelligence.html", "tutorial_url": "https://www.youtube.com/watch?v=Fj-E_0rQ6u8"}, {"id": 2, "name": "Abridge", "sector": "Health Care", "sub_category": "Clinical Conversation Summarizer", "pricing": "Paid / Enterprise", "free_tier": "Enterprise trial & provider pilots upon request", "cost_plan": "Enterprise SaaS per clinician / month", "features": "Transcribes patient conversations in real-time, maps to EHR clinical notes with 90%+ note accuracy", "deployment": "Cloud", "difficulty": "Intermediate", "home_url": "https://www.abridge.com", "tutorial_url": "https://www.youtube.com/watch?v=Kz48Z0jKq0I"}, {"id": 3, "name": "Glass Health (Glass AI)", "sector": "Health Care", "sub_category": "Clinical Decision Support & DDx", "pricing": "Freemium / Free Tier", "free_tier": "10 free clinical decision queries per month", "cost_plan": "$10 / month (Glass Pro)", "features": "Generates differential diagnoses (DDx) and clinical management plans based on evidence-based medicine", "deployment": "Cloud Web", "difficulty": "Beginner", "home_url": "https://glass.health", "tutorial_url": "https://www.youtube.com/watch?v=48SbgHfgqD4"}, {"id": 4, "name": "Open Evidence", "sector": "Health Care", "sub_category": "Medical Search & Clinical Evidence", "pricing": "100% Free / Open", "free_tier": "100% Free with verified NPI / medical credentials", "cost_plan": "$0 / Free for Verified Providers", "features": "AI search engine for clinical queries synthesizing NEJM, Mayo Clinic, and PubMed citations with high accuracy", "deployment": "Cloud Web", "difficulty": "Beginner", "home_url": "https://www.openevidence.com", "tutorial_url": "https://www.youtube.com/watch?v=x7t8y7fF8yM"}, {"id": 5, "name": "Freed AI", "sector": "Health Care", "sub_category": "AI Medical Scribe for Clinicians", "pricing": "Freemium / Free Trial", "free_tier": "10 free visit transcriptions upon signup", "cost_plan": "$99 / month (Unlimited visits)", "features": "Automatic clinical SOAP note generator that listens, summarizes, and adapts to individual doctor note formats", "deployment": "Cloud Web", "difficulty": "Beginner", "home_url": "https://www.getfreed.ai", "tutorial_url": "https://www.youtube.com/watch?v=W0S8v7FvXh4"}, {"id": 6, "name": "Suki AI", "sector": "Health Care", "sub_category": "Voice Assistant & Ambient Scribe", "pricing": "Paid / Enterprise", "free_tier": "Free 14-day clinical trial", "cost_plan": "$199 / provider / month", "features": "Voice-enabled ambient clinical scribe, EHR coding assistant, and medical voice documentation platform", "deployment": "Cloud Web/App", "difficulty": "Beginner", "home_url": "https://www.suki.ai", "tutorial_url": "https://www.youtube.com/watch?v=0kH8JvK3vD4"}, {"id": 7, "name": "Aidoc", "sector": "Health Care", "sub_category": "Radiology AI & Anomaly Triage", "pricing": "Paid / Enterprise", "free_tier": "Hospital pilot demonstrations available", "cost_plan": "Enterprise Hospital Contract", "features": "Always-on radiology AI analyzing CT, MRI, and X-rays to flag critical anomalies (hemorrhage, PE)", "deployment": "Cloud / Hybrid", "difficulty": "Advanced", "home_url": "https://www.aidoc.com", "tutorial_url": "https://www.youtube.com/watch?v=5rT7UqO0gSg"}, {"id": 8, "name": "Hippocratic AI", "sector": "Health Care", "sub_category": "Patient-Facing Healthcare LLM", "pricing": "Paid / Enterprise", "free_tier": "Healthcare partner pilot programs", "cost_plan": "Enterprise Clinical Deployment", "features": "Safety-first generative LLM designed specifically for non-diagnostic patient intake, triage, and follow-ups", "deployment": "Cloud Web", "difficulty": "Intermediate", "home_url": "https://www.hippocraticai.com", "tutorial_url": "https://www.youtube.com/watch?v=kYJqD9P_w1M"}, {"id": 9, "name": "AlphaFold (DeepMind)", "sector": "Health Care", "sub_category": "3D Protein Folding & Drug R&D", "pricing": "100% Free / Open", "free_tier": "100% Free & Open Access Database & Code", "cost_plan": "$0 / Free Open Access", "features": "Predicts 3D structures of over 200 million proteins to accelerate pharmacology, biotechnology, and drug design", "deployment": "Cloud / Local", "difficulty": "Advanced", "home_url": "https://alphafold.ebi.ac.uk", "tutorial_url": "https://www.youtube.com/watch?v=gg7WjuFs8F4"}, {"id": 10, "name": "PathAI", "sector": "Health Care", "sub_category": "Digital Pathology & Diagnostics", "pricing": "Paid / Enterprise", "free_tier": "Clinical research partner demonstrations", "cost_plan": "Enterprise Laboratory Licensing", "features": "AI-assisted pathology image analysis reducing diagnostic error and improving biomarker scoring for cancer trials", "deployment": "Cloud Web", "difficulty": "Advanced", "home_url": "https://www.pathai.com", "tutorial_url": "https://www.youtube.com/watch?v=YV8K5g2k_78"}, {"id": 11, "name": "Cursor AI", "sector": "Web/App Dev", "sub_category": "AI Code Editor (VS Code Fork)", "pricing": "Freemium / Free Tier", "free_tier": "Free 50 fast premium requests + unlimited slow requests", "cost_plan": "$20 / month (Pro)", "features": "AI-native code editor with multi-file code editing, codebase indexing, terminal AI, and full composer mode", "deployment": "Local IDE", "difficulty": "Beginner-Int", "home_url": "https://www.cursor.com", "tutorial_url": "https://www.youtube.com/watch?v=yk9lXobJ97E"}, {"id": 12, "name": "GitHub Copilot", "sector": "Web/App Dev", "sub_category": "AI Pair Programmer & Chat", "pricing": "Freemium / Free Tier", "free_tier": "Free basic completion plan for individual developers", "cost_plan": "$10 / month (Copilot Individual)", "features": "Context-aware code completion, multi-line synthesis, test generation, and CLI terminal assistant", "deployment": "IDE Plugin", "difficulty": "Beginner", "home_url": "https://github.com/features/copilot", "tutorial_url": "https://www.youtube.com/watch?v=Fi3AJZZregE"}, {"id": 13, "name": "v0.dev (by Vercel)", "sector": "Web/App Dev", "sub_category": "Generative UI to React/Tailwind", "pricing": "Freemium / Free Tier", "free_tier": "200 free generation credits renewed monthly", "cost_plan": "$20 / month (Premium)", "features": "Generates production-ready React, Next.js, and Tailwind CSS components from plain English prompts", "deployment": "Cloud Web", "difficulty": "Beginner", "home_url": "https://v0.dev", "tutorial_url": "https://www.youtube.com/watch?v=G1S0Q2fB5hE"}, {"id": 14, "name": "Bolt.new (StackBlitz)", "sector": "Web/App Dev", "sub_category": "Full-Stack Web App Builder in Browser", "pricing": "Freemium / Free Tier", "free_tier": "Free daily token allowance for browser dev", "cost_plan": "$20 / month (Pro)", "features": "Builds, executes, fixes, and deploys full-stack React/Node.js web applications entirely in your browser", "deployment": "Cloud Web", "difficulty": "Beginner", "home_url": "https://bolt.new", "tutorial_url": "https://www.youtube.com/watch?v=68S28j5fBcg"}, {"id": 15, "name": "Lovable.dev", "sector": "Web/App Dev", "sub_category": "Full-Stack Web App Creator", "pricing": "Freemium / Free Tier", "free_tier": "Free tier with starter generation credits", "cost_plan": "$20 / month (Starter)", "features": "Creates full-stack web applications, connects databases (Supabase), and exports clean GitHub code", "deployment": "Cloud Web", "difficulty": "Beginner", "home_url": "https://lovable.dev", "tutorial_url": "https://www.youtube.com/watch?v=G5V7qZ3YQ5k"}, {"id": 16, "name": "Replit Agent", "sector": "Web/App Dev", "sub_category": "Autonomous Software Builder & Host", "pricing": "Freemium / Free Tier", "free_tier": "Free standard development environment", "cost_plan": "$25 / month (Replit Core + Agent)", "features": "Autonomous AI agent that sets up environments, installs packages, writes backend/frontend, and deploys apps", "deployment": "Cloud Web", "difficulty": "Beginner", "home_url": "https://replit.com", "tutorial_url": "https://www.youtube.com/watch?v=s9fM5_X4QhA"}, {"id": 17, "name": "Claude Artifacts", "sector": "Web/App Dev", "sub_category": "Interactive UI & Component Prototyping", "pricing": "Freemium / Free Tier", "free_tier": "Free daily messaging quota with Claude 3.5 Sonnet", "cost_plan": "$20 / month (Pro)", "features": "Renders live interactive web apps, games, charts, and SVG graphics side-by-side with chat prompts", "deployment": "Cloud Web", "difficulty": "Beginner", "home_url": "https://claude.ai", "tutorial_url": "https://www.youtube.com/watch?v=8mD3QfT1A9Q"}, {"id": 18, "name": "Tabnine", "sector": "Web/App Dev", "sub_category": "Privacy-Centric AI Code Completion", "pricing": "Freemium / Free Tier", "free_tier": "Free basic code completions for individuals", "cost_plan": "$12 / month (Pro)", "features": "Local and secure AI code assistant that never trains on private code, compliant with SOC2 and GDPR", "deployment": "IDE Plugin / Local", "difficulty": "Beginner", "home_url": "https://www.tabnine.com", "tutorial_url": "https://www.youtube.com/watch?v=vVb-V1o_Z2g"}, {"id": 19, "name": "Canva Magic Studio", "sector": "Graphics", "sub_category": "All-in-One AI Graphic Design", "pricing": "Freemium / Free Tier", "free_tier": "Free basic tools with standard templates & design board", "cost_plan": "$12.99 / month (Canva Pro)", "features": "Magic Design, background remover, generative fill, auto-translate, and social media batch creation", "deployment": "Cloud Web/App", "difficulty": "Beginner", "home_url": "https://www.canva.com", "tutorial_url": "https://www.youtube.com/watch?v=H7Z8x3nN9Xw"}, {"id": 20, "name": "Microsoft Designer", "sector": "Graphics", "sub_category": "AI Poster, Banner & Social Creator", "pricing": "100% Free / Open", "free_tier": "15 daily boost credits with Microsoft account", "cost_plan": "$0 / Free with MS Account", "features": "Creates branded promotional graphics, social media posts, custom stickers, and flyers using DALL-E 3", "deployment": "Cloud Web", "difficulty": "Beginner", "home_url": "https://designer.microsoft.com", "tutorial_url": "https://www.youtube.com/watch?v=F3_S8d_mX3Q"}, {"id": 21, "name": "Adobe Firefly", "sector": "Graphics", "sub_category": "Generative Graphics & Vector Art", "pricing": "Freemium / Free Tier", "free_tier": "25 free generative credits per month", "cost_plan": "$4.99 / month (Premium 100 pts)", "features": "Commercial-safe vector graphic generation, generative recoloring, text effects, and image expansion", "deployment": "Cloud Web", "difficulty": "Beginner", "home_url": "https://firefly.adobe.com", "tutorial_url": "https://www.youtube.com/watch?v=z8aB3k_R9Yc"}, {"id": 22, "name": "Recraft.ai", "sector": "Graphics", "sub_category": "Vector SVG, 3D Icon & Brand Art", "pricing": "Daily Free Credits", "free_tier": "Free daily credits for vector and 3D icons", "cost_plan": "$20 / month (Basic)", "features": "Specialized in vector art, infinite-resolution SVGs, 3D brand assets, and custom visual brand palettes", "deployment": "Cloud Web", "difficulty": "Beginner", "home_url": "https://www.recraft.ai", "tutorial_url": "https://www.youtube.com/watch?v=Z8mQ_7yF8Yg"}, {"id": 23, "name": "Ideogram", "sector": "Graphics", "sub_category": "Graphic Typography & Poster Art", "pricing": "Daily Free Credits", "free_tier": "10 free credits daily (approx. 40 graphic designs/day)", "cost_plan": "$7 / month (Basic)", "features": "World-class graphic typography, clean lettering on logos, vintage badges, and promotional posters", "deployment": "Cloud Web", "difficulty": "Beginner", "home_url": "https://ideogram.ai", "tutorial_url": "https://www.youtube.com/watch?v=8N_Yw0_x9Zk"}, {"id": 24, "name": "Looka", "sector": "Graphics", "sub_category": "AI Logo Design & Complete Brand Kit", "pricing": "Freemium / Free Tier", "free_tier": "Free unlimited logo variations generation", "cost_plan": "$20 one-time / $96/yr Brand Kit", "features": "AI logo generator that instantly produces matching business cards, social headers, and vector SVG files", "deployment": "Cloud Web", "difficulty": "Beginner", "home_url": "https://looka.com", "tutorial_url": "https://www.youtube.com/watch?v=V7_b_9c8F3k"}, {"id": 25, "name": "Leonardo.ai", "sector": "Photo", "sub_category": "Consistent Character Art & Assets", "pricing": "Daily Free Credits", "free_tier": "150 free fast tokens renewed every 24 hours", "cost_plan": "$10 / month (Apprentice)", "features": "Preset style models (Phoenix, Alchemy), custom character LoRA training, and AI canvas inpainting", "deployment": "Cloud Web", "difficulty": "Beginner", "home_url": "https://leonardo.ai", "tutorial_url": "https://www.youtube.com/watch?v=xW8f5K1gL9M"}, {"id": 26, "name": "Midjourney", "sector": "Photo", "sub_category": "Photorealistic & Artistic Image Gen", "pricing": "Paid / Enterprise", "free_tier": "No permanent free tier (occasional promo trials)", "cost_plan": "$10 / month (Basic Plan)", "features": "Gold standard in photorealistic textures, cinematic lighting, material realism, and aesthetic control", "deployment": "Cloud (Web/Discord)", "difficulty": "Intermediate", "home_url": "https://www.midjourney.com", "tutorial_url": "https://www.youtube.com/watch?v=8b2rZ8eXv1s"}, {"id": 27, "name": "Fooocus", "sector": "Photo", "sub_category": "Offline Midjourney-Quality Generator", "pricing": "100% Free / Open", "free_tier": "100% Free & Unlimited (Runs locally on PC)", "cost_plan": "$0 / Open Source", "features": "Offline high-resolution photo generation powered by SDXL, prompt expansion, and face-swap swapping", "deployment": "Local PC", "difficulty": "Intermediate", "home_url": "https://github.com/lllyasviel/Fooocus", "tutorial_url": "https://www.youtube.com/watch?v=3zL3H4k3pYw"}, {"id": 28, "name": "ComfyUI", "sector": "Photo", "sub_category": "Node-Based Visual Image Pipeline", "pricing": "100% Free / Open", "free_tier": "100% Free & Unlimited (Runs locally on PC)", "cost_plan": "$0 / Open Source", "features": "Modular visual graph pipeline for Flux, Stable Diffusion, ControlNet, inpainting, and custom LoRAs", "deployment": "Local PC", "difficulty": "Advanced", "home_url": "https://github.com/comfyanonymous/ComfyUI", "tutorial_url": "https://www.youtube.com/watch?v=2r1p8w_4K4c"}, {"id": 29, "name": "Tensor.art", "sector": "Photo", "sub_category": "Online Cloud Model Runner (SDXL/Flux)", "pricing": "Daily Free Credits", "free_tier": "100 free credits daily + free model runs", "cost_plan": "$8 / month (Pro)", "features": "Run advanced SDXL and Flux checkpoints, LoRAs, and ControlNets in the cloud without local GPU hardware", "deployment": "Cloud Web", "difficulty": "Intermediate", "home_url": "https://tensor.art", "tutorial_url": "https://www.youtube.com/watch?v=vV9mB3n1a8k"}, {"id": 30, "name": "Krea AI", "sector": "Photo", "sub_category": "Real-Time AI Painting & Image Enhancer", "pricing": "Freemium / Free Tier", "free_tier": "Free daily generation allowance and live canvas", "cost_plan": "$8 / month (Basic)", "features": "Real-time AI drawing canvas, ultra-fast generation, 4K AI upscaling, and generative background fills", "deployment": "Cloud Web", "difficulty": "Beginner", "home_url": "https://www.krea.ai", "tutorial_url": "https://www.youtube.com/watch?v=N9yG8kL4vQ2"}, {"id": 31, "name": "Photoroom", "sector": "Photo", "sub_category": "AI Product Photography & Studio Lighting", "pricing": "Freemium / Free Tier", "free_tier": "Free background removal and basic editing tools", "cost_plan": "$9.99 / month (Pro)", "features": "Studio-quality AI product backgrounds, shadow generation, batch photo editing, and object removal", "deployment": "Cloud Mobile/Web", "difficulty": "Beginner", "home_url": "https://www.photoroom.com", "tutorial_url": "https://www.youtube.com/watch?v=p4k3yN8vX1E"}, {"id": 32, "name": "Adobe Mixamo", "sector": "2D/3D Animation", "sub_category": "Automated 3D Rigging & Mocap Library", "pricing": "100% Free / Open", "free_tier": "100% Free with standard Adobe Account", "cost_plan": "$0 / Free Forever", "features": "Auto-rigs 3D humanoid character meshes and provides 2,000+ royalty-free motion capture animation clips", "deployment": "Cloud Web", "difficulty": "Beginner", "home_url": "https://www.mixamo.com", "tutorial_url": "https://www.youtube.com/watch?v=mGz1s8d1Z6Q"}, {"id": 33, "name": "Meshy.ai", "sector": "2D/3D Animation", "sub_category": "Text/Image to Textured 3D Mesh", "pricing": "Daily Free Credits", "free_tier": "200 signup credits + 20 free credits monthly", "cost_plan": "$16 / month (Pro)", "features": "Generates textured 3D models (.OBJ, .GLTF, .FBX) with PBR materials and clean quad mesh topology", "deployment": "Cloud Web", "difficulty": "Intermediate", "home_url": "https://www.meshy.ai", "tutorial_url": "https://www.youtube.com/watch?v=H7yG9kM2a4s"}, {"id": 34, "name": "Tripo3D", "sector": "2D/3D Animation", "sub_category": "Sub-10s Single-Image to 3D Mesh", "pricing": "Daily Free Credits", "free_tier": "Daily free generation allowance", "cost_plan": "$10 / month (Basic)", "features": "Instant 3D model generation from single concept images with auto retopology and UV unwrapping", "deployment": "Cloud Web", "difficulty": "Intermediate", "home_url": "https://www.tripo3d.ai", "tutorial_url": "https://www.youtube.com/watch?v=5V8kQ9bL1sA"}, {"id": 35, "name": "Viggle AI", "sector": "2D/3D Animation", "sub_category": "2D Character Animation & Motion Transfer", "pricing": "Freemium / Free Tier", "free_tier": "Generous free tier via Discord and Web portal", "cost_plan": "$9.99 / month (Pro)", "features": "Animates any 2D character artwork or meme image using motion capture templates and green screen export", "deployment": "Cloud Web/Discord", "difficulty": "Beginner", "home_url": "https://viggle.ai", "tutorial_url": "https://www.youtube.com/watch?v=Kj7yG8pL4vQ"}, {"id": 36, "name": "Krikey AI", "sector": "2D/3D Animation", "sub_category": "3D Avatars, Text-to-Motion & Lip Sync", "pricing": "Freemium / Free Tier", "free_tier": "Free tier with exportable 3D animations", "cost_plan": "$13.99 / month (Standard)", "features": "Generates 3D animated avatars from text prompts, customizable facial expressions, and talking lip-sync", "deployment": "Cloud Web", "difficulty": "Beginner", "home_url": "https://www.krikey.ai", "tutorial_url": "https://www.youtube.com/watch?v=8V9pLkQ2wE1"}, {"id": 37, "name": "Plask AI", "sector": "2D/3D Animation", "sub_category": "Webcam AI Motion Capture for 3D Rigs", "pricing": "Freemium / Free Tier", "free_tier": "Free standard mocap extraction quota", "cost_plan": "$28 / month (Pro)", "features": "Extracts full-body 3D skeletal movement from recorded 2D video files directly into .FBX rigs", "deployment": "Cloud Web", "difficulty": "Intermediate", "home_url": "https://plask.ai", "tutorial_url": "https://www.youtube.com/watch?v=v8X9pLmQ2wE"}, {"id": 38, "name": "Blender", "sector": "2D/3D Animation", "sub_category": "Full 3D Suite (Model, Rig, Animate, VFX)", "pricing": "100% Free / Open", "free_tier": "100% Free & Open Source Forever", "cost_plan": "$0 / GPL Open Source", "features": "Complete 3D production powerhouse for rigging, simulation, lighting, grease pencil 2D animation, and rendering", "deployment": "Local PC", "difficulty": "Advanced", "home_url": "https://www.blender.org", "tutorial_url": "https://www.youtube.com/playlist?list=PLjEaoINr3zgEPv5y--4MKpciLaoQYZB1Z"}, {"id": 39, "name": "LivePortrait", "sector": "2D/3D Animation", "sub_category": "Portrait Animation & Expression Transfer", "pricing": "100% Free / Open", "free_tier": "100% Free & Open Source on GitHub", "cost_plan": "$0 / Open Source", "features": "Transfers realistic facial expressions, eye contact, and head motion from driving video to static character art", "deployment": "Local / Cloud", "difficulty": "Intermediate", "home_url": "https://github.com/KwaiVGI/LivePortrait", "tutorial_url": "https://www.youtube.com/watch?v=9L8kQ2wE1s8"}, {"id": 40, "name": "DeepSeek Chat", "sector": "Script Writing", "sub_category": "Reasoning & Screenplay Outlines", "pricing": "100% Free / Open", "free_tier": "100% Free web access & open weights", "cost_plan": "$0 / Free Web & API", "features": "Deep reasoning for complex story architectures, plot twists, character dialogues, and visual shot lists", "deployment": "Cloud Web", "difficulty": "Beginner", "home_url": "https://chatdeepseek.com", "tutorial_url": "https://www.youtube.com/watch?v=5NgNicANyqM"}, {"id": 41, "name": "ChatGPT (OpenAI)", "sector": "Script Writing", "sub_category": "Creative Dialogue & Story Arcs", "pricing": "Freemium / Free Tier", "free_tier": "Free access to GPT-4o mini and standard GPT-4o quota", "cost_plan": "$20 / month (Plus)", "features": "Industry benchmark for creative story development, character dialogue, script drafting, and world-building", "deployment": "Cloud Web/App", "difficulty": "Beginner", "home_url": "https://chatgpt.com", "tutorial_url": "https://www.deeplearning.ai/short-courses/chatgpt-prompt-engineering-for-developers/"}, {"id": 42, "name": "Claude (Anthropic)", "sector": "Script Writing", "sub_category": "Nuanced Literary Dialogue & Screenplays", "pricing": "Freemium / Free Tier", "free_tier": "Free daily messaging quota with Claude 3.5 Sonnet", "cost_plan": "$20 / month (Pro)", "features": "Exceptional literary tone, natural conversational cadence, screenplay formatting, and huge context retention", "deployment": "Cloud Web", "difficulty": "Beginner", "home_url": "https://claude.ai", "tutorial_url": "https://www.youtube.com/watch?v=8mD3QfT1A9Q"}, {"id": 43, "name": "Google Gemini", "sector": "Script Writing", "sub_category": "Multimodal Long-Form Story Bible", "pricing": "Freemium / Free Tier", "free_tier": "Free standard access with massive 1M context window", "cost_plan": "$19.99 / month (Advanced)", "features": "Processes entire book drafts and multi-episode scripts simultaneously for continuity and dialogue polish", "deployment": "Cloud Web", "difficulty": "Beginner", "home_url": "https://gemini.google.com", "tutorial_url": "https://www.youtube.com/watch?v=zjkBMFhNj_g"}, {"id": 44, "name": "Sudowrite", "sector": "Script Writing", "sub_category": "Novel & Fiction Generative Engine", "pricing": "Freemium / Free Trial", "free_tier": "Free trial credits upon signup", "cost_plan": "$10 / month (Hobby Tier)", "features": "Tailored for creative authors: automatic prose expansion, twist generation, sensory details, and pacing analysis", "deployment": "Cloud Web", "difficulty": "Intermediate", "home_url": "https://www.sudowrite.com", "tutorial_url": "https://www.youtube.com/watch?v=Kz48Z0jKq0I"}, {"id": 45, "name": "GravityWrite", "sector": "Script Writing", "sub_category": "Viral Video Hooks & Animation Scripts", "pricing": "Freemium / Free Tier", "free_tier": "Free starter tier with basic script templates", "cost_plan": "$19 / month (Pro)", "features": "Generates shot-by-shot animation scripts, YouTube video hooks, explainer video outlines, and voiceover text", "deployment": "Cloud Web", "difficulty": "Beginner", "home_url": "https://gravitywrite.com", "tutorial_url": "https://www.youtube.com/watch?v=T6yV4xL9a2s"}, {"id": 46, "name": "DaVinci Resolve", "sector": "Video Editing", "sub_category": "Hollywood Studio NLE, VFX & Fairlight", "pricing": "100% Free / Open", "free_tier": "Complete studio-grade NLE & Fusion VFX 100% Free", "cost_plan": "$295 one-time (Studio Version)", "features": "Industry benchmark for video cutting, advanced color grading, Fairlight multi-track audio, and AI magic mask", "deployment": "Local PC/Mac", "difficulty": "Intermediate", "home_url": "https://www.blackmagicdesign.com/products/davinciresolve", "tutorial_url": "https://www.youtube.com/watch?v=63LnV6Xz7mY"}, {"id": 47, "name": "CapCut", "sector": "Video Editing", "sub_category": "Multi-Track Video & Auto Subtitles", "pricing": "Freemium / Free Tier", "free_tier": "Full multi-track editing & templates 100% Free", "cost_plan": "$9.99 / month (Pro)", "features": "Auto subtitle generation, AI background removal, speed curves, keyframe animations, and viral audio effects", "deployment": "Local/Cloud/Mobile", "difficulty": "Beginner", "home_url": "https://www.capcut.com", "tutorial_url": "https://www.youtube.com/watch?v=T6yV4xL9a2s"}, {"id": 48, "name": "Descript", "sector": "Video Editing", "sub_category": "Text-Based Video & Audio Editor", "pricing": "Freemium / Free Tier", "free_tier": "1 free transcription hour per month", "cost_plan": "$12 / month (Creator)", "features": "Edit video and podcasts by editing the text transcript; includes AI voice cloning (Overdub) and eye-contact fix", "deployment": "Local/Cloud", "difficulty": "Beginner", "home_url": "https://www.descript.com", "tutorial_url": "https://www.youtube.com/watch?v=V8b2rZ8eXv1"}, {"id": 49, "name": "Adobe Premiere Pro", "sector": "Video Editing", "sub_category": "Professional Video Production & Sensei", "pricing": "Paid / Enterprise", "free_tier": "7-day free trial on Adobe Creative Cloud", "cost_plan": "$22.99 / month (Single App)", "features": "Industry-standard timeline editing, AI speech enhancement, text-based transcript editing, and auto-reframing", "deployment": "Local PC/Mac", "difficulty": "Intermediate-Adv", "home_url": "https://www.adobe.com/products/premiere.html", "tutorial_url": "https://www.youtube.com/watch?v=H7Z8x3nN9Xw"}, {"id": 50, "name": "Veed.io", "sector": "Video Editing", "sub_category": "Cloud Video Editor & Auto Captions", "pricing": "Freemium / Free Tier", "free_tier": "Free video export with watermark (up to 10 mins)", "cost_plan": "$12 / month (Basic)", "features": "Browser-based video editing, AI subtitling, clean audio background noise removal, and avatar generation", "deployment": "Cloud Web", "difficulty": "Beginner", "home_url": "https://www.veed.io", "tutorial_url": "https://www.youtube.com/watch?v=kYJqD9P_w1M"}, {"id": 51, "name": "Wondershare Filmora", "sector": "Video Editing", "sub_category": "AI Smart Cutout & Copilot Editor", "pricing": "Freemium / Free Trial", "free_tier": "Free export with watermark for testing", "cost_plan": "$29.99 / year or $49.99 perp", "features": "AI smart cutout, AI audio stretch, motion tracking, auto beat sync, and text-to-video editing tools", "deployment": "Local PC/Mac", "difficulty": "Beginner", "home_url": "https://filmora.wondershare.com", "tutorial_url": "https://www.youtube.com/watch?v=p4k3yN8vX1E"}, {"id": 52, "name": "Kling AI", "sector": "Long/Short Video", "sub_category": "Cinematic Motion & Video Generation", "pricing": "Daily Free Credits", "free_tier": "66 free credits daily (approx. 6 HD video clips/day)", "cost_plan": "$10 / month (Standard)", "features": "High physical accuracy, natural walking movement, camera direction controls, and high-definition video synthesis", "deployment": "Cloud Web", "difficulty": "Beginner", "home_url": "https://klingai.com", "tutorial_url": "https://www.youtube.com/watch?v=F_5wJ8qG5eQ"}, {"id": 53, "name": "Luma Dream Machine", "sector": "Long/Short Video", "sub_category": "Fluid Dynamic Video & Fast Pan Gen", "pricing": "Freemium / Free Tier", "free_tier": "30 free video generations per month", "cost_plan": "$9.99 / month (Lite)", "features": "Smooth fluid dynamics, high motion clarity, rapid generation speed, and natural scene transformations", "deployment": "Cloud Web", "difficulty": "Beginner", "home_url": "https://lumalabs.ai/dream-machine", "tutorial_url": "https://www.youtube.com/watch?v=F_U2rP0Z8a4"}, {"id": 54, "name": "Hailuo AI (MiniMax)", "sector": "Long/Short Video", "sub_category": "Expressive Character & Cinematic Shots", "pricing": "Daily Free Credits", "free_tier": "Free daily credits on web interface", "cost_plan": "Pay-as-you-go / Credits", "features": "Exceptional cinematic character micro-emotions, detailed cloth physics, and high dynamic range video clips", "deployment": "Cloud Web", "difficulty": "Beginner", "home_url": "https://hailuoai.video", "tutorial_url": "https://www.youtube.com/watch?v=F_U2rP0Z8a4"}, {"id": 55, "name": "Runway Gen-3 Alpha", "sector": "Long/Short Video", "sub_category": "Cinematic Camera & Video-to-Video", "pricing": "Freemium / Free Tier", "free_tier": "125 one-time free credits on account creation", "cost_plan": "$12 / month (Standard)", "features": "Motion brush controls, camera path customization, keyframe interpolation, and stylized video restyling", "deployment": "Cloud Web", "difficulty": "Intermediate", "home_url": "https://runwayml.com", "tutorial_url": "https://www.youtube.com/watch?v=F_U2rP0Z8a4"}, {"id": 56, "name": "Opus Clip", "sector": "Long/Short Video", "sub_category": "Long Video to Viral Shorts Generator", "pricing": "Freemium / Free Tier", "free_tier": "60 free video processing minutes per month", "cost_plan": "$9 / month (Starter)", "features": "AI analyzes long podcasts/webinars, extracts key hooks, generates short vertical clips with auto-captions & virality score", "deployment": "Cloud Web", "difficulty": "Beginner", "home_url": "https://www.opus.pro", "tutorial_url": "https://www.youtube.com/watch?v=kYJqD9P_w1M"}, {"id": 57, "name": "InVideo AI", "sector": "Long/Short Video", "sub_category": "Text-to-Full Narrated Video", "pricing": "Freemium / Free Tier", "free_tier": "10 free minutes/week with watermark", "cost_plan": "$20 / month (Plus Tier)", "features": "Generates complete long-form YouTube videos from text prompts including script, stock video, voiceover, and captions", "deployment": "Cloud Web", "difficulty": "Beginner", "home_url": "https://invideo.io", "tutorial_url": "https://www.youtube.com/watch?v=kYJqD9P_w1M"}, {"id": 58, "name": "HeyGen", "sector": "Long/Short Video", "sub_category": "AI Video Presenters & Voice Translation", "pricing": "Freemium / Free Trial", "free_tier": "1 free credit trial (1 minute avatar video)", "cost_plan": "$24 / month (Creator)", "features": "Studio-quality photorealistic AI presenter avatars, video translation with voice cloning, and personalized outreach", "deployment": "Cloud Web", "difficulty": "Beginner", "home_url": "https://www.heygen.com", "tutorial_url": "https://www.youtube.com/watch?v=Kz48Z0jKq0I"}, {"id": 59, "name": "Pika AI (Pika 2.0)", "sector": "Long/Short Video", "sub_category": "Cartoon Physics & Short Video Effects", "pricing": "Daily Free Credits", "free_tier": "30 initial credits + daily refill bonus", "cost_plan": "$8 / month (Standard)", "features": "Pikaffects (squish, melt, inflate, explode), lip-sync, dynamic region modification, and cinematic short clips", "deployment": "Cloud Web", "difficulty": "Beginner", "home_url": "https://pika.art", "tutorial_url": "https://www.youtube.com/watch?v=F_5wJ8qG5eQ"}], "lectures": [{"id": 1, "title": "MIT 6.S191: Introduction to Deep Learning", "domain": "AI Foundations", "instructor": "MIT (Alexander Amini)", "access": "100% Free Video Course", "platform": "YouTube / MIT OpenCourse", "duration": "10+ Hours (Full Series)", "concepts": "Neural networks, computer vision, generative modeling, transformers & LLMs", "audience": "Developers & AI enthusiasts", "difficulty": "Intermediate", "course_url": "http://introtodeeplearning.com/", "video_url": "https://www.youtube.com/playlist?list=PLtBw6njkvG-WE4hN4b6s1B2S3O6gS8y7W"}, {"id": 2, "title": "Harvard CS50: Intro to AI with Python", "domain": "AI Foundations", "instructor": "Harvard (David J. Malan / Brian Yu)", "access": "100% Free Video Course", "platform": "YouTube / Harvard Online", "duration": "12+ Hours (Full Course)", "concepts": "Search algorithms, knowledge graphs, machine learning, neural nets & NLP", "audience": "Beginners with basic Python", "difficulty": "Beginner-Int", "course_url": "https://cs50.harvard.edu/ai/", "video_url": "https://www.youtube.com/watch?v=5NgNicANyqM"}, {"id": 3, "title": "Stanford CS229: Machine Learning Course", "domain": "Machine Learning", "instructor": "Stanford University (Andrew Ng)", "access": "100% Free Video Course", "platform": "YouTube / Stanford Online", "duration": "20+ Hours (Full Course)", "concepts": "Linear regression, deep learning, reinforcement learning, statistical learning", "audience": "Students & engineers", "difficulty": "Advanced", "course_url": "https://online.stanford.edu/courses/cs229-machine-learning", "video_url": "https://www.youtube.com/playlist?list=FX3C2496E63A1C6"}, {"id": 4, "title": "Intro to Large Language Models", "domain": "Generative AI", "instructor": "Andrej Karpathy (Ex-Tesla / OpenAI)", "access": "100% Free Video Lecture", "platform": "YouTube", "duration": "1 Hour Deep Dive", "concepts": "Mental models for LLMs: pretraining, fine-tuning, RLHF, security & future trends", "audience": "Everyone & creators", "difficulty": "Beginner", "course_url": "https://github.com/karpathy", "video_url": "https://www.youtube.com/watch?v=zjkBMFhNj_g"}, {"id": 5, "title": "Neural Networks: Zero to Hero Series", "domain": "Deep Learning Code", "instructor": "Andrej Karpathy", "access": "100% Free Video Course", "platform": "YouTube", "duration": "15+ Hours (7 Lectures)", "concepts": "Building micrograd, makemore, GPT-2 from scratch in pure Python and PyTorch", "audience": "Aspiring AI developers", "difficulty": "Intermediate-Adv", "course_url": "https://karpathy.ai", "video_url": "https://www.youtube.com/playlist?list=PLAqhIrjkxbuWI23v9cThsA9GvCAUhRvKZ"}, {"id": 6, "title": "ChatGPT Prompt Engineering for Developers", "domain": "Prompt Engineering", "instructor": "DeepLearning.AI & OpenAI (Andrew Ng)", "access": "Free Course / Audit", "platform": "DeepLearning.AI", "duration": "1.5 Hours", "concepts": "Prompting principles, iterative development, summarization, inferring & transforming", "audience": "Prompt writers & creators", "difficulty": "Beginner", "course_url": "https://www.deeplearning.ai", "video_url": "https://www.deeplearning.ai/short-courses/chatgpt-prompt-engineering-for-developers/"}, {"id": 7, "title": "Fast.ai: Practical Deep Learning for Coders", "domain": "Deep Learning", "instructor": "Fast.ai (Jeremy Howard)", "access": "100% Free Course", "platform": "Fast.ai Portal", "duration": "25+ Hours (Full Course)", "concepts": "Top-down practical deep learning, PyTorch, computer vision, NLP & deployment", "audience": "Coders & practitioners", "difficulty": "Intermediate", "course_url": "https://www.fast.ai", "video_url": "https://course.fast.ai/"}, {"id": 8, "title": "AI Filmmaking Masterclass: Complete Guide", "domain": "AI Filmmaking", "instructor": "Curious Refuge (Caleb Ward)", "access": "100% Free Video Masterclass", "platform": "YouTube", "duration": "45 Minutes", "concepts": "End-to-end AI film pipeline: scripting, character consistency, camera motion & audio", "audience": "Storytellers & video makers", "difficulty": "Beginner", "course_url": "https://curiousrefuge.com", "video_url": "https://www.youtube.com/watch?v=F_U2rP0Z8a4"}, {"id": 9, "title": "Kling AI & Video Generation Masterclass", "domain": "AI Video & Anim", "instructor": "Matt Wolfe / FutureTools", "access": "100% Free Video Masterclass", "platform": "YouTube", "duration": "35 Minutes", "concepts": "Kling AI prompt guide, motion brushes, text-to-video, image-to-video parameters", "audience": "Animators & video creators", "difficulty": "Beginner", "course_url": "https://www.futuretools.io", "video_url": "https://www.youtube.com/watch?v=F_5wJ8qG5eQ"}, {"id": 10, "title": "ComfyUI Full Beginner to Pro Tutorial", "domain": "AI Art & Animation", "instructor": "Sebastian Kamph", "access": "100% Free Video Masterclass", "platform": "YouTube", "duration": "1.5 Hours", "concepts": "Node setups, Flux/SDXL workflows, ControlNet, face detailing & consistency", "audience": "Digital artists & designers", "difficulty": "Intermediate", "course_url": "https://github.com/comfyanonymous/ComfyUI", "video_url": "https://www.youtube.com/watch?v=2r1p8w_4K4c"}, {"id": 11, "title": "Stable Diffusion & ControlNet Masterclass", "domain": "AI Concept Art", "instructor": "Olivio Sarikas", "access": "100% Free Video Masterclass", "platform": "YouTube", "duration": "1 Hour", "concepts": "OpenPose, Canny edges, depth maps, inpainting & animated character poses", "audience": "Concept artists & animators", "difficulty": "Intermediate", "course_url": "https://www.oliviosarikas.com", "video_url": "https://www.youtube.com/watch?v=uK7Yw0t8Tio"}, {"id": 12, "title": "Leonardo.ai Character Consistency Guide", "domain": "Character Design", "instructor": "The AI Advantage", "access": "100% Free Video Masterclass", "platform": "YouTube", "duration": "25 Minutes", "concepts": "Seed locking, character element training, consistent outfits and expressions", "audience": "Storytellers & 2D animators", "difficulty": "Beginner", "course_url": "https://leonardo.ai", "video_url": "https://www.youtube.com/watch?v=xW8f5K1gL9M"}, {"id": 13, "title": "Viggle AI 2D Character Animation Tutorial", "domain": "2D Animation", "instructor": "Prompt Muse", "access": "100% Free Video Masterclass", "platform": "YouTube", "duration": "20 Minutes", "concepts": "Animating static 2D artwork, applying dance/fight mocap templates & greenscreen", "audience": "2D animators & meme creators", "difficulty": "Beginner", "course_url": "https://viggle.ai", "video_url": "https://www.youtube.com/watch?v=Kj7yG8pL4vQ"}, {"id": 14, "title": "Blender 4.0 Complete Beginner Donut Series", "domain": "3D Animation", "instructor": "Blender Guru (Andrew Price)", "access": "100% Free Video Course", "platform": "YouTube", "duration": "5+ Hours (Multi-part)", "concepts": "3D modeling fundamentals, materials, lighting, modifiers, camera work & rendering", "audience": "Anyone new to 3D", "difficulty": "Beginner", "course_url": "https://www.blenderguru.com", "video_url": "https://www.youtube.com/playlist?list=PLjEaoINr3zgEPv5y--4MKpciLaoQYZB1Z"}, {"id": 15, "title": "Mixamo to Blender Rigging & Animation", "domain": "3D Character Rig", "instructor": "CG Geek", "access": "100% Free Video Masterclass", "platform": "YouTube", "duration": "30 Minutes", "concepts": "Auto-rigging 3D characters in Mixamo, importing into Blender, blending mocap cycles", "audience": "3D animators & game devs", "difficulty": "Beginner-Int", "course_url": "https://www.mixamo.com", "video_url": "https://www.youtube.com/watch?v=mGz1s8d1Z6Q"}, {"id": 16, "title": "Meshy AI to 3D Game Rigging Tutorial", "domain": "3D AI Modeling", "instructor": "Royal Skies", "access": "100% Free Video Masterclass", "platform": "YouTube", "duration": "15 Minutes", "concepts": "Converting text/image to 3D mesh via Meshy, topology cleanup and auto-rigging", "audience": "Indie game & film creators", "difficulty": "Beginner", "course_url": "https://www.meshy.ai", "video_url": "https://www.youtube.com/watch?v=H7yG9kM2a4s"}, {"id": 17, "title": "Plask AI Motion Capture to Blender Guide", "domain": "AI Mocap 3D", "instructor": "Plask AI Official", "access": "100% Free Video Masterclass", "platform": "YouTube", "duration": "20 Minutes", "concepts": "Extracting full body mocap from phone video directly onto 3D rigs in Blender", "audience": "Animators & 3D artists", "difficulty": "Intermediate", "course_url": "https://plask.ai", "video_url": "https://www.youtube.com/watch?v=v8X9pLmQ2wE"}, {"id": 18, "title": "ElevenLabs AI Voice Acting & SFX Masterclass", "domain": "AI Voice & Audio", "instructor": "SkillCircle / AI Creators", "access": "100% Free Video Masterclass", "platform": "YouTube", "duration": "25 Minutes", "concepts": "Voice cloning, pacing, emotional voice direction, sound effects generation", "audience": "Voice directors & editors", "difficulty": "Beginner", "course_url": "https://elevenlabs.io", "video_url": "https://www.youtube.com/watch?v=Z9wK1pL7x8M"}, {"id": 19, "title": "Suno AI Music Production Masterclass", "domain": "AI Music & Score", "instructor": "Generative AI Hub", "access": "100% Free Video Masterclass", "platform": "YouTube", "duration": "30 Minutes", "concepts": "Writing custom meta-tags, structure markers [Intro, Chorus, Solo], genre mixing", "audience": "Filmmakers & composers", "difficulty": "Beginner", "course_url": "https://suno.com", "video_url": "https://www.youtube.com/watch?v=N7vM2kL8x9Q"}, {"id": 20, "title": "DaVinci Resolve Full Beginner Video Course", "domain": "Video Editing", "instructor": "Casey Faris", "access": "100% Free Video Course", "platform": "YouTube", "duration": "4.5 Hours", "concepts": "Cutting, transition effects, color grading, Fairlight audio mixing & export settings", "audience": "Video editors & filmmakers", "difficulty": "Beginner", "course_url": "https://www.blackmagicdesign.com", "video_url": "https://www.youtube.com/watch?v=63LnV6Xz7mY"}, {"id": 21, "title": "CapCut Masterclass for Social & Video Editing", "domain": "Quick Editing", "instructor": "Justin Brown - Primal Video", "access": "100% Free Video Masterclass", "platform": "YouTube", "duration": "40 Minutes", "concepts": "Multi-layer editing, auto captions, keyframes, background removal & visual FX", "audience": "Content creators & editors", "difficulty": "Beginner", "course_url": "https://www.capcut.com", "video_url": "https://www.youtube.com/watch?v=T6yV4xL9a2s"}, {"id": 22, "title": "Stanford CS25: Transformers United Lectures", "domain": "Transformer Arch", "instructor": "Stanford University", "access": "100% Free Video Course", "platform": "YouTube", "duration": "10+ Hours (Full Series)", "concepts": "Vision transformers, multimodal models, diffusion models, frontier architectures", "audience": "AI researchers & engineers", "difficulty": "Advanced", "course_url": "https://web.stanford.edu/class/cs25/", "video_url": "https://www.youtube.com/playlist?list=PLoROMvodv4rNiJRchCzutFw5ItR_ZEDMQ"}]};
+        let currentTab = 'tools';
+        let currentCategory = 'ALL';
+        let searchQuery = '';
+
+        function getBadgeClass(pricing) {
+            if (pricing.includes('100% Free')) return 'badge-free';
+            if (pricing.includes('Daily Free')) return 'badge-daily';
+            if (pricing.includes('Freemium')) return 'badge-freemium';
+            return 'badge-paid';
+        }
+
+        function switchMainTab(tab) {
+            currentTab = tab;
+            document.getElementById('tabTools').classList.toggle('active', tab === 'tools');
+            document.getElementById('tabLectures').classList.toggle('active', tab === 'lectures');
+            document.getElementById('categoryChips').style.display = tab === 'tools' ? 'flex' : 'none';
+            renderCards();
+        }
+
+        function filterCategory(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.chip').forEach(c => {
+                c.classList.toggle('active', c.innerText.includes(cat) || (cat==='ALL' && c.innerText==='All Tools'));
+            });
+            renderCards();
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            searchQuery = e.target.value.toLowerCase();
+            renderCards();
+        });
+
+        function renderCards() {
+            const listContainer = document.getElementById('cardsList');
+            listContainer.innerHTML = '';
+
+            if (currentTab === 'tools') {
+                const filtered = db.tools.filter(t => {
+                    const matchCat = (currentCategory === 'ALL' || t.sector === currentCategory);
+                    const matchSearch = t.name.toLowerCase().includes(searchQuery) ||
+                                        t.features.toLowerCase().includes(searchQuery) ||
+                                        t.sub_category.toLowerCase().includes(searchQuery) ||
+                                        t.sector.toLowerCase().includes(searchQuery);
+                    return matchCat && matchSearch;
+                });
+
+                document.getElementById('itemCount').innerText = `Showing ${filtered.length} AI Platforms`;
+
+                filtered.forEach(t => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">#${t.id} ${t.name}</div>
+                                <div class="card-sub">${t.sector} • ${t.sub_category}</div>
+                            </div>
+                            <span class="badge ${getBadgeClass(t.pricing)}">${t.pricing.split('/')[0].trim()}</span>
+                        </div>
+                        <div class="card-desc">${t.features}</div>
+                        <div class="card-specs">
+                            <span>🎁 <strong>Free:</strong> ${t.free_tier}</span>
+                            <span>💰 <strong>Paid:</strong> ${t.cost_plan}</span>
+                            <span>⚡ ${t.deployment}</span>
+                        </div>
+                        <div class="card-actions">
+                            ${t.home_url ? `<a href="${t.home_url}" target="_blank" class="btn btn-primary">🌐 Open Tool</a>` : ''}
+                            ${t.tutorial_url ? `<a href="${t.tutorial_url}" target="_blank" class="btn btn-secondary">▶️ Tutorial</a>` : ''}
+                        </div>
+                    `;
+                    listContainer.appendChild(card);
+                });
+            } else {
+                const filtered = db.lectures.filter(l => {
+                    return l.title.toLowerCase().includes(searchQuery) ||
+                           l.instructor.toLowerCase().includes(searchQuery) ||
+                           l.concepts.toLowerCase().includes(searchQuery) ||
+                           l.domain.toLowerCase().includes(searchQuery);
+                });
+
+                document.getElementById('itemCount').innerText = `Showing ${filtered.length} University Courses & Masterclasses`;
+
+                filtered.forEach(l => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">#${l.id} ${l.title}</div>
+                                <div class="card-sub">${l.instructor} • ${l.platform}</div>
+                            </div>
+                            <span class="badge badge-free">FREE VIDEO</span>
+                        </div>
+                        <div class="card-desc">${l.concepts}</div>
+                        <div class="card-specs">
+                            <span>⏱️ <strong>Duration:</strong> ${l.duration}</span>
+                            <span>🎯 <strong>Audience:</strong> ${l.audience}</span>
+                            <span>📊 <strong>Level:</strong> ${l.difficulty}</span>
+                        </div>
+                        <div class="card-actions">
+                            ${l.course_url ? `<a href="${l.course_url}" target="_blank" class="btn btn-primary">📖 Course Site</a>` : ''}
+                            ${l.video_url ? `<a href="${l.video_url}" target="_blank" class="btn btn-secondary">▶️ Watch Video</a>` : ''}
+                        </div>
+                    `;
+                    listContainer.appendChild(card);
+                });
+            }
+        }
+
+        // Initial render
+        renderCards();
+    </script>
+</body>
+</html>
